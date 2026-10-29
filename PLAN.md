@@ -17,22 +17,6 @@ This project aims to create a terminal based Inventory Management System for a s
 | REQ 11 | Release 2 versions | Verify Git tags, Docker tags and low-stock banner |
 | REQ 12 | Pass automated tests, ruff and CI | Run pytest,ruff and docker-based CI tests |
 
-# COMPONENTS:
-schema.sql
-
-db.py
-
-seed_db.py
-
-products.py
-
-reports.py
-
-inventory.py
-
-main.py
-
-Dockerfile and CI
 
 # Database Design
 
