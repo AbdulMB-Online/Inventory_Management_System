@@ -65,3 +65,30 @@ Returns the total units sold and revenue for each sold product, ordered by reven
 ### 4. Never Sold
 
 Returns products that have no sales history.
+
+## Failed Sale and Transaction Rollback
+
+A sale was attempted for two products:
+- Hammer: 2 units requested, 10 available.
+- Drill: 5 units requested, 3 available.
+
+The Hammer could be sold, but the Drill had insufficient stock. The entire transaction was rolled back.
+
+### Verification Output
+
+```text
+BEFORE STOCK: [('Hammer', 10), ('Drill', 3)]
+BEFORE COUNTS: (0, 0, 0)
+
+ATTEMPTED SALE: [(1, 2), (2, 5)]
+ERROR: Insufficient stock
+
+AFTER STOCK: [('Hammer', 10), ('Drill', 3)]
+AFTER COUNTS: (0, 0, 0)
+
+PASSED
+```
+
+The counts represent records in `sales`, `sale_items`, and `stock_movements`, respectively.
+
+The unchanged stock quantities and record counts demonstrate that the failed sale did not save any partial changes.
