@@ -5,12 +5,12 @@ This project aims to create a terminal based Inventory Management System for a s
 | **ID** | **Requirement** | **How to Verify** |
 | --- | --- | ---|
 | REQ 1 | Create five related SQLite tables with contraints. | Verify Schema, Foreign keys and constraints |
-| REQ 2 | SEED 4 SUPPLOERS, 12 PRODUCTS, 5 SALES AND 12 SALE ITEMS | Check table row counts and sample data |
+| REQ 2 | SEED 4 SUPPLIERS, 12 PRODUCTS, 8 SALES AND 12 SALE ITEMS | Check table row counts and sample data |
 | REQ 3 | Add, retrieve and delete products | Test valid and invalid operations |
 | REQ 4 | Search products using text and combined filters | Test case-insensitive searches and SQL injection safety |
 | REQ 5 | Generate four inventory and sales reports | Compare results with sample data | 
 | REQ 6 | Restock and adjust inventory with movement logs | Verify stock changes and reject invalid quantitites | 
-| REQ 7 | Record sales as atomic transaction } Verify stock changes and reject invalid quantities |
+| REQ 7 | Record sales as an atomic transaction | Verify stock changes and transaction rollback on failure |
 | REQ 8 | Provide a terminal based menu with input validation | Test menu options and invalid inputs |
 | REQ 9 | Run the applicaiton in Docker with persistent storage | Restart containers using the same volume |
 | REQ 10 | Support backup, restoration and version rollback | Verify db integrity and preserved row counts |
@@ -18,20 +18,21 @@ This project aims to create a terminal based Inventory Management System for a s
 | REQ 12 | Pass automated tests, ruff and CI | Run pytest,ruff and docker-based CI tests |
 
 
+
 # Database Design
 
 ### Suppliers
 Stores information about suppliers who provide products to the hardware store.
 
-- **Columns:** supplier_id, name
-- **Constraints:** supplier_id is the primary key; name is required.
+- **Columns:** supplier_id, supplier_name
+- **Constraints:** supplier_id is the primary key; supplier_name is required and must be unique.
 - **Relationship:** One supplier can supply multiple products.
 
 ### Products
 Stores product details, prices, and current stock quantities.
 
-- **Columns:** product_id, sku, name, category, supplier_id, price_cents, quantity_in_stock, reorder_level
-- **Constraints:** product_id is the primary key; SKU must be unique; all fields are required; price, stock quantity, and reorder level cannot be negative.
+- **Columns:** product_id, product_sku, product_name, product_category, supplier_id, price_cents, stock_quantity, reorder_level
+- **Constraints:** product_id is the primary key; product_sku must be unique; all non-ID fields are required; price_cents, stock_quantity, and reorder_level cannot be negative.
 - **Relationship:** Each product belongs to one supplier and can appear in multiple sales and stock movements.
 
 ### Sales
@@ -44,16 +45,19 @@ Stores information about each sale made by the store.
 ### Sale Items
 Stores individual products included in each sale, along with their quantities and prices at the time of purchase.
 
-- **Columns:** sale_item_id, sale_id, product_id, quantity, unit_price_cents
-- **Constraints:** sale_item_id is the primary key; all fields are required; quantity must be positive; unit price cannot be negative; the combination of sale_id and product_id must be unique.
+- **Columns:** sale_item_id, sale_id, product_id, sale_quantity, unit_price_cents
+- **Constraints:** sale_item_id is the primary key; sale_id and product_id are required foreign keys; sale_quantity must be positive; unit_price_cents cannot be negative.
 - **Relationship:** Each sale item references one sale and one product.
 
 ### Stock Movements
 Tracks inventory changes caused by restocking, adjustments, or sales.
 
-- **Columns:** movement_id, product_id, quantity_change, reason, timestamp
-- **Constraints:** movement_id is the primary key; all fields are required; quantity_change must be nonzero; reason must be restock, adjustment, or sale.
+- **Columns:** movement_id, product_id, quantity_change, reason, time_stamp
+- **Constraints:** movement_id is the primary key; product_id is a required foreign key; quantity_change must be nonzero; reason must be `restock`, `adjustment`, or `sale`. Restock movements must be positive, sale movements must be negative, and adjustment movements may be positive or negative.
 - **Relationship:** Each stock movement belongs to one product.
+
+**Database Mode:** All five tables use SQLite `STRICT` mode to enforce column data types.
+
 
 
 # PUBLIC FUNCTIONS
