@@ -60,7 +60,7 @@ Returns products at or below their reorder levels, including the number of units
 
 ### 3. Sales by Product
 
-Returns the total units sold and revenue for eac[h sold product, ordered by revenue.]()
+Returns the total units sold and revenue for each sold product, ordered by revenue.
 
 ### 4. Never Sold
 
