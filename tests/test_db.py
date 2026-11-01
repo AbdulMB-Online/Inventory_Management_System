@@ -1,3 +1,4 @@
+"""Test database constraints, product management, deletion, and search functionality."""
 import sqlite3
 from pathlib import Path
 
@@ -13,17 +14,6 @@ from inventory_db import (
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 SCHEMA_PATH = PROJECT_ROOT / "database" / "schema.sql"
-
-
-@pytest.fixture
-def db_connection():
-    connection = sqlite3.connect(":memory:")
-    try:
-        connection.execute("PRAGMA foreign_keys = ON")
-        connection.executescript(SCHEMA_PATH.read_text(encoding="utf-8"))
-        yield connection
-    finally:
-        connection.close()
 
 def test_expected_tables_exist(db_connection):
     rows = db_connection.execute("SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%' ").fetchall()

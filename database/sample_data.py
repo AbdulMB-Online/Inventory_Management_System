@@ -1,3 +1,4 @@
+"""Define sample suppliers, products, sales, and sale items for database seeding."""
 suppliers = [
     (1, "Havells Inc"),
     (2, "United Hardware"),
