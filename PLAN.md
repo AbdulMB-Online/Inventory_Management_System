@@ -60,25 +60,23 @@ Tracks inventory changes caused by restocking, adjustments, or sales.
 
 | Function | Inputs | Return Value |
 |---|---|---|
-| connect | Database path | SQLite connection |
-| initialize_database | Connection | None |
-| seed_database | Connection | Row counts |
-| add_product | Connection, product details | New product ID |
-| get_product | Connection, product ID | Product details or None |
-| update_price | Connection, product ID, new price | Boolean |
-| delete_product | Connection, product ID | Boolean or error |
-| search_products | Connection, search text, optional filters | Matching product rows |
-| stock_value_by_supplier | Connection | Supplier stock value rows |
-| low_stock_report | Connection | Low-stock product rows |
-| sales_by_product | Connection | Product sales and revenue rows |
-| never_sold_report | Connection | Never-sold product rows |
-| restock_product | Connection, product ID, quantity, timestamp | None or error |
-| adjust_stock | Connection, product ID, signed quantity, timestamp | None or error |
-| record_sale | Connection, product-quantity pairs, timestamp | Sale ID |
-| backup_database | Connection, destination path | None or error |
-| count_low_stock | Connection | Number of low-stock products |
+| `connect` | None (reads `INVENTORY_DB` or uses default path) | SQLite connection |
+| `add_product` | Connection, product details | New product ID |
+| `get_product` | Connection, product ID | Product details or None |
+| `update_product_price` | Connection, product ID, price amount in cents | Boolean |
+| `delete_product` | Connection, product ID | Boolean or error |
+| `search_products` | Connection, search text, optional filters | Matching product rows |
+| `stock_value_by_supplier` | Connection | Supplier stock value rows |
+| `low_stock_report` | Connection | Low-stock product rows |
+| `sales_by_product` | Connection | Product sales and revenue rows |
+| `never_sold_products` | Connection | Never-sold product rows |
+| `restock_product` | Connection, product ID, quantity, optional timestamp | True or error |
+| `adjust_stock` | Connection, product ID, signed quantity, optional timestamp | True or error |
+| `record_sale` | Connection, product-quantity pairs, optional timestamp | Sale ID or error |
+| `backup_database` | Connection (prompts for destination path) | None or error |
+| `count_low_stock` | Connection | Number of low-stock products |
 
-# TRANSACTION PLAN
+
 
 ### Restock
 
@@ -112,11 +110,11 @@ Tracks inventory changes caused by restocking, adjustments, or sales.
 
 | PR | Branch | Feature |
 |---|---|---|
-| 1 | feature/database-and-seed | Schema and seed data |
+| 1 | feature/database-and-seed | Schema, seed data and CI |
 | 2 | feature/products-and-search | Product CRUD and search |
 | 3 | feature/reports | Four reports |
 | 4 | feature/stock-and-sales | Stock transactions and sales |
-| 5 | feature/menu-and-container | Terminal menu, Docker, backup, and CI |
+| 5 | feature/menu-and-container | Terminal menu, Docker and backup |
 | 6 | feature/low-stock-banner | Low-stock banner |
 
 ### Version 1.0.0

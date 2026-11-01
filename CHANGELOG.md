@@ -11,3 +11,9 @@
 - SQLite database backup.
 - Docker container with persistent database storage.
 - Automated tests and GitHub Actions CI.
+
+## [1.1.0] 
+
+### Added
+- Dynamic low-stock alert on the main menu.
+- Automatic recalculation of low-stock product counts after inventory changes.

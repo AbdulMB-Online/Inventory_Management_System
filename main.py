@@ -227,6 +227,10 @@ def backup_database(connection):
 def main():
     with closing(connect()) as connection:
         while True:
+            low_stock_count = reports.count_low_stock(connection)
+
+            if low_stock_count > 0:
+                print(f"\nLOW STOCK ALERT: {low_stock_count} products need restocking!")
             print("\n========== INVENTORY MANAGEMENT SYSTEM ==========")
             print("1. Product Management")
             print("2. Stock Management")
@@ -252,6 +256,7 @@ def main():
                 break
             else:
                 print("Invalid menu option.")
+
 
 
 if __name__ == "__main__":

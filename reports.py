@@ -22,3 +22,7 @@ def never_sold_products(connection):
     return connection.execute("SELECT p.* FROM products p "
                               "WHERE NOT EXISTS (SELECT 1 FROM sale_items si WHERE si.product_id = p.product_id) "
                               "ORDER BY p.product_name").fetchall()
+def count_low_stock(connection):
+    return connection.execute(
+        "SELECT COUNT(*) FROM products WHERE stock_quantity <= reorder_level"
+    ).fetchone()[0]
