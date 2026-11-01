@@ -1,3 +1,4 @@
+"""Initialize the SQLite database and populate it with sample inventory data."""
 import sqlite3
 from pathlib import Path
 
