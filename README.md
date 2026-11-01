@@ -92,3 +92,27 @@ PASSED
 The counts represent records in `sales`, `sale_items`, and `stock_movements`, respectively.
 
 The unchanged stock quantities and record counts demonstrate that the failed sale did not save any partial changes.
+
+## Docker
+
+Build the Docker image:
+
+```bash
+docker build -t inventory-management:dev .
+```
+
+Run the interactive application with a persistent database:
+
+```bash
+docker run --rm -it -v "$(pwd)/database:/data" inventory-management:dev
+```
+
+### Database Persistence Verification
+
+1. Started the application inside Docker.
+2. Restocked product ID `1` by `5` units.
+3. Exited the application, removing the container.
+4. Started a new container using the same volume mount.
+5. Retrieved product ID `1` and confirmed its stock quantity was `25`.
+
+**Result:** Database changes persisted across container restarts.
