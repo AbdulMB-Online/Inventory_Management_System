@@ -4,7 +4,13 @@ from pathlib import Path
 
 import pytest
 
-from inventory_db import add_product,delete_product, get_product, search_products, update_product_price
+from inventory_db import (
+    add_product,
+    delete_product,
+    get_product,
+    search_products,
+    update_product_price,
+)
 from stock_changes import record_sale
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
