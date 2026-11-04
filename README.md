@@ -199,7 +199,6 @@ Both the original and backup databases passed `PRAGMA integrity_check` with the 
 
 All five tables had matching row counts, confirming that the backup preserved the database records.
 
-<<<<<<< HEAD
 ### Self-Reflection
 What I learned:	SQLite transactions, Foreign keys, Multiple operation management, pytest, Docker persistence, and release rollback
 What I would improve: Design test cases earlier and try to reduce redundant cases which are already addressed by the schema
@@ -311,13 +310,6 @@ PRAGMA integrity_check: ok
 
 ## Version Rollback Verification
 
-Verified rollback from Docker image `1.1.0` to `1.0.0` using the same persistent SQLite database.
-
-### Commands
-=======
-
-## Version Rollback Verification
-
 Verified rollback from Docker version `1.1.0` to `1.0.0` using the same persistent SQLite database.
 
 ### Verification Steps
@@ -330,7 +322,6 @@ Verified rollback from Docker version `1.1.0` to `1.0.0` using the same persiste
 6. Ran `PRAGMA integrity_check` to confirm database integrity.
 
 ### Docker Commands
->>>>>>> origin/main
 
 Run version 1.1.0:
 
@@ -344,28 +335,6 @@ Roll back to version 1.0.0:
 docker run --rm -it -v "$(pwd)/database/rollback-test:/data" inventory-management:1.0.0
 ```
 
-<<<<<<< HEAD
-### Verification Results
-
-- Version 1.1.0 displayed the low-stock banner.
-- Product ID 1 initially had 25 units.
-- Adjusted stock by +2 units in version 1.1.0.
-- Version 1.0.0 started successfully without the low-stock banner.
-- Product ID 1 retained 27 units after rollback.
-
-Database verification output:
-
-```text
-Integrity: ok
-suppliers 4
-products 12
-sales 8
-sale_items 20
-stock_movements 3
-```
-
-**Result:** Application rollback preserved inventory changes and database integrity.
-=======
 ### Database Verification Results
 
 ```text
@@ -378,4 +347,3 @@ stock_movements: 3
 ```
 
 **Result:** Docker version rollback successfully preserved inventory changes, sales records, and database integrity.
->>>>>>> origin/main
