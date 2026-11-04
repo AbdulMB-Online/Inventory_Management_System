@@ -81,6 +81,7 @@ Tracks inventory changes caused by restocking, adjustments, or sales.
 | `count_low_stock` | Connection | Number of low-stock products |
 
 
+# TRANSACTION PLAN
 
 ### Restock
 
@@ -141,5 +142,6 @@ Tracks inventory changes caused by restocking, adjustments, or sales.
 - Run version 1.1.0 using a persistent Docker volume.
 - Switch back to Docker image 1.0.0 using the same volume.
 - Verify that products, sales, and stock quantities remain unchanged.
+
 
        

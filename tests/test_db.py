@@ -11,6 +11,7 @@ from inventory_db import (
     search_products,
     update_product_price,
 )
+from stock_changes import record_sale
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 SCHEMA_PATH = PROJECT_ROOT / "database" / "schema.sql"
@@ -131,3 +132,25 @@ def test_search_filters(db_connection):
 
     all_products = search_products(db_connection)
     assert [product[2] for product in all_products] == ["Hammer", "LED Bulb", "Table Fan"]
+
+def test_duplicate_product_sale_rolls_back(db_connection):
+    db_connection.execute("INSERT INTO suppliers (supplier_id, supplier_name) VALUES (?, ?)", (1, "Havells Inc"))
+
+    hammer_id = add_product(db_connection, "HAM-001", "Hammer", "Tools", 1, 2000, 10, 3)
+
+    with pytest.raises(ValueError, match="Duplicate product in sale"):
+        record_sale(db_connection, [(hammer_id, 2), (hammer_id, 3)], "2026-11-01")
+
+    stock = db_connection.execute(
+        "SELECT stock_quantity FROM products WHERE product_id = ?",(hammer_id,)).fetchone()[0]
+
+    assert stock == 10
+
+    assert db_connection.execute("SELECT COUNT(*) FROM sales").fetchone()[0] == 0
+    assert db_connection.execute("SELECT COUNT(*) FROM sale_items").fetchone()[0] == 0
+    assert db_connection.execute("SELECT COUNT(*) FROM stock_movements").fetchone()[0] == 0
+
+def test_update_missing_product_returns_false(db_connection):
+    result = update_product_price(db_connection, 999, 5000)
+
+    assert result is False

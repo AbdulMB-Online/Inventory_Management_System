@@ -31,3 +31,20 @@ jobs:
 
       - name: Run Ruff
         run: ruff check .
+
+  docker-build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Build Docker image
+        run: docker build -t inventory-management:ci .
+
+      - name: Run pytest inside Docker
+        run: |
+          docker run --rm \
+            --volume "$GITHUB_WORKSPACE/tests:/app/tests:ro" \
+            inventory-management:ci \
+            sh -c "python -m pip install --no-cache-dir -r requirements.txt && python -m pytest -v"
