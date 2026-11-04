@@ -198,3 +198,151 @@ Both the original and backup databases passed `PRAGMA integrity_check` with the 
 | stock_movements | 2 | 2 |
 
 All five tables had matching row counts, confirming that the backup preserved the database records.
+
+### Self-Reflection
+What I learned:	SQLite transactions, Foreign keys, Multiple operation management, pytest, Docker persistence, and release rollback
+What I would improve: Design test cases earlier and try to reduce redundant cases which are already addressed by the schema
+What I was Uncertain about: Designing menu for an application of this nature, how do I simplify the menu for maximum usecase coverage with a small learning curve
+
+
+## Docker Build Verification
+
+The following command completed successfully:
+
+```bash
+docker build -t inventory-management:dev .
+```
+
+Actual build output:
+
+```text
+#0 building with "desktop-linux" instance using docker driver
+
+#1 [internal] load build definition from Dockerfile
+#1 transferring dockerfile: 227B done
+#1 DONE 0.0s
+
+#2 [internal] load metadata for docker.io/library/python:3.12-slim
+#2 DONE 0.2s
+
+#3 [internal] load .dockerignore
+#3 transferring context: 179B done
+#3 DONE 0.0s
+
+#4 [1/4] FROM docker.io/library/python:3.12-slim@sha256:b18b261e1b4974b4f321451ad5251ded85abb22c2b8b262da527dda1d031ab30
+#4 resolve docker.io/library/python:3.12-slim@sha256:b18b261e1b4974b4f321451ad5251ded85abb22c2b8b262da527dda1d031ab30 0.0s done
+#4 DONE 0.0s
+
+#5 [internal] load build context
+#5 transferring context: 7.84kB done
+#5 DONE 0.0s
+
+#6 [2/4] WORKDIR /app
+#6 CACHED
+
+#7 [3/4] COPY . .
+#7 DONE 0.0s
+
+#8 [4/4] RUN mkdir -p /data
+#8 DONE 0.1s
+
+#9 exporting to image
+#9 exporting layers 0.0s done
+#9 exporting manifest sha256:dc5729fc87f9a7f3ab5b5b299a33e5b1e3e2ae64cfc7835df33a56045791224d done
+#9 exporting config sha256:6e0d8bff9fd7fd671357789361ef42a441614654ccea8219e3be73a828582466 done
+#9 exporting attestation manifest sha256:b760c8e9e3db13aff7570fa82bf7bcd78444ddb1d2019e52242435f253616dad done
+#9 exporting manifest list sha256:227a03b22ec0e12f1fe0faee6931f81e317b4b8f38f3fdd3cbf0d9872c948dae done
+#9 naming to docker.io/library/inventory-management:dev done
+#9 unpacking to docker.io/library/inventory-management:dev done
+#9 DONE 0.0s
+```
+
+## Docker Persistence Verification Output
+
+This check used an isolated database loaded from `database/sample_data.py` in a temporary host directory.
+Product 1 started with 20 units. In the first container, 5 units were added through Stock Management → Restock Product.
+The application then exited, removing that container because of `--rm`. A new container started with the same database mount.
+
+The following command was run once for each container:
+
+```bash
+docker run --rm -it --network none --mount type=bind,source=/private/tmp/inventory-persistence-evidence-gq0o7je8,target=/data inventory-management:dev
+```
+
+Actual output excerpts from the first container (repeated menus omitted):
+
+```text
+product_id: 1
+product_sku: FAN-CEIL-48
+product_name: Ceiling Fan 48 Inch
+product_category: Electrical
+supplier_id: 1
+price_cents: $79.99
+stock_quantity: 20
+reorder_level: 5
+supplier_name: Havells Inc
+
+Choose an option: Product ID: Quantity to restock: Product restocked successfully.
+
+Thank You!
+```
+
+Actual product lookup output from the second container:
+
+```text
+product_id: 1
+product_sku: FAN-CEIL-48
+product_name: Ceiling Fan 48 Inch
+product_category: Electrical
+supplier_id: 1
+price_cents: $79.99
+stock_quantity: 25
+reorder_level: 5
+supplier_name: Havells Inc
+```
+
+The new container showed `stock_quantity: 25`, confirming that the restock persisted after the first container was removed.
+The database also passed `PRAGMA integrity_check`:
+
+```text
+PRAGMA integrity_check: ok
+```
+
+## Version Rollback Verification
+
+Verified rollback from Docker image `1.1.0` to `1.0.0` using the same persistent SQLite database.
+
+### Commands
+
+Run version 1.1.0:
+
+```bash
+docker run --rm -it -v "$(pwd)/database/rollback-test:/data" inventory-management:1.1.0
+```
+
+Roll back to version 1.0.0:
+
+```bash
+docker run --rm -it -v "$(pwd)/database/rollback-test:/data" inventory-management:1.0.0
+```
+
+### Verification Results
+
+- Version 1.1.0 displayed the low-stock banner.
+- Product ID 1 initially had 25 units.
+- Adjusted stock by +2 units in version 1.1.0.
+- Version 1.0.0 started successfully without the low-stock banner.
+- Product ID 1 retained 27 units after rollback.
+
+Database verification output:
+
+```text
+Integrity: ok
+suppliers 4
+products 12
+sales 8
+sale_items 20
+stock_movements 3
+```
+
+**Result:** Application rollback preserved inventory changes and database integrity.
